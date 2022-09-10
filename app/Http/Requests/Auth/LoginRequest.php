@@ -23,9 +23,9 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        //todo:79000000000999999
         return [
-            'phone' => 'required|numeric|starts_with:79|min:79000000000|max:79000000000999999'
+            'phone' => 'required|integer|starts_with:79|min:79000000000|max:79999999999|exists:users,phone',
+            'impersonate' => 'boolean'
         ];
     }
 }

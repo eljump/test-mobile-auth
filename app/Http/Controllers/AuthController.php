@@ -18,8 +18,8 @@ class AuthController extends Controller
     {
         //todo: валидация
         $phone = $request->input('phone');
+        dd($phone);
         //todo: выбор режима
-        $user = User::wherePhone($phone)->first();//todo: getByPhone, seeder
         $code = random_int(1000, 9999);
         Cache::put($phone, Hash::make($code), 3 * 60);
         //todo

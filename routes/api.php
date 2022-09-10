@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware('headers')->group(function () {
     Route::controller(AuthController::class)->prefix('auth')->group(function () {
-        Route::post('login', 'login');
+        Route::middleware('impersonate')->post('login', 'login');
         Route::middleware('throttle:1,1')
             ->post('sms/send', 'smsSend');
     });
