@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\LoginAction;
+use App\Exceptions\BaseException;
+use App\Helpers\ResponseTryCatcher;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\User;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -14,19 +19,24 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function login(LoginRequest $request)
+    /**
+     * @throws ValidationException
+     */
+    public function login(LoginRequest $request): JsonResponse
     {
-        //todo: валидация
         $phone = $request->input('phone');
-        dd($phone);
-        //todo: выбор режима
-        $code = random_int(1000, 9999);
-        Cache::put($phone, Hash::make($code), 3 * 60);
-        //todo
-        //SmsService::create($phone, $code);
+        $impersonate = $request->input('impersonate');
 
-        //todo
-        return response(['code' => $code]);
+        $action = fn() => (new LoginAction($phone, $impersonate))->run();
+
+        $response = ResponseTryCatcher::run($action);
+        if ($response != []) {
+            return response()->json([
+                'message' => $response['message'],
+                'code' => $response['code']
+            ]);
+        }
+        return response()->json([], 200);
     }
 
     public function smsSend()
