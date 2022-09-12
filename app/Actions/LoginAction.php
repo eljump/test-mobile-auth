@@ -5,9 +5,8 @@ namespace App\Actions;
 use App\Services\SendAuthCode\SendAuthCodeService;
 use App\Services\SendAuthCode\Strategies\SendAuthCodeByEMAIL;
 use App\Services\SendAuthCode\Strategies\SendAuthCodeBySMS;
+use App\Services\AuthCodeService\AuthCodeServiceInterface;
 use Exception;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Hash;
 
 class LoginAction
 {
@@ -23,9 +22,8 @@ class LoginAction
      */
     public function run(): void
     {
-        //todo:service
-        $code = random_int(1000, 9999);
-        Cache::put($this->phone, Hash::make($code), 5 * 60);
+        $smsCodeService = app(AuthCodeServiceInterface::class, ['phone'=>$this->phone]);
+        $code = $smsCodeService->getNewCode();
 
         $recipient = !$this->impersonate ? $this->phone : config('custom.admin_email');
         $strategy = !$this->impersonate ? SendAuthCodeBySMS::class : SendAuthCodeByEMAIL::class;

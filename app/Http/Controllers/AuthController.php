@@ -2,20 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CheckCodeAction;
 use App\Actions\LoginAction;
-use App\Exceptions\BaseException;
 use App\Helpers\ResponseTryCatcher;
+use App\Http\Requests\Auth\CheckCodeRequest;
 use App\Http\Requests\Auth\LoginRequest;
-use Exception;
+use App\Http\Resources\UserResource;
+use App\Models\User;
+use AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Hash;
+
 
 class AuthController extends Controller
 {
@@ -39,8 +36,30 @@ class AuthController extends Controller
         return response()->json([], 200);
     }
 
-    public function smsSend()
+    /**
+     * @throws ValidationException
+     */
+    public function checkCode(CheckCodeRequest $request)
     {
+        $user = User::wherePhone($request->input('phone'))->first();
+        $code = $request->input('code');
 
+        $action = fn() => (new CheckCodeAction($user, $code))->run();
+
+        $response = ResponseTryCatcher::run($action);
+        if ($response != []) {
+            return response()->json([
+                'message' => $response['message'],
+                'code' => $response['code']
+            ]);
+        }
+
+        return response()->json([
+            'user' => UserResource::make($user),
+            'token' => [
+                'value' => AuthService::createNewToken($user),
+                'type' => 'Bearer'
+            ]
+        ], 200);
     }
 }

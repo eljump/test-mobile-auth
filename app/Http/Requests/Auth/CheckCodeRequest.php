@@ -3,9 +3,10 @@
 namespace App\Http\Requests\Auth;
 
 use App\Rules\PhoneRule;
+use App\Services\AuthCodeService\AuthCodeServiceInterface;
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRequest extends FormRequest
+class CheckCodeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,7 +27,18 @@ class LoginRequest extends FormRequest
     {
         return [
             'phone' => PhoneRule::get(),
-            'impersonate' => 'boolean'
+            'code' => ['required', 'integer', $this->getMinSize(), $this->getMaxSize()]
         ];
+    }
+
+    private function getMinSize(): string
+    {
+        $min = 10 ** (app(AuthCodeServiceInterface::class)->codeSize()-1);
+        return 'min:' . $min;
+    }
+    private function getMaxSize(): string
+    {
+        $max = (10 ** (app(AuthCodeServiceInterface::class)->codeSize()))-1;
+        return 'max:' . $max;
     }
 }

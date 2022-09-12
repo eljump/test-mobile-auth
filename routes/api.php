@@ -20,8 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::prefix('v1')->middleware('headers')->group(function () {
     Route::controller(AuthController::class)->prefix('auth')->group(function () {
-        Route::middleware('impersonate')->post('login', 'login');
-        Route::middleware('throttle:1,1')
-            ->post('sms/send', 'smsSend');
+        Route::middleware(['impersonate', 'throttle:1,1'])->post('login', 'login');
+        Route::post('code', 'checkCode');
     });
 });

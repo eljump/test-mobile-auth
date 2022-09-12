@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Services\SmsCodeService;
+namespace App\Services\AuthCodeService;
 
-interface SmsCodeServiceInterface
+interface AuthCodeServiceInterface
 {
+    public static function codeSize():int;
+
     public function __construct(int $phone);
 
     public function checkCode(int $code): bool;

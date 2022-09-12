@@ -1,14 +1,20 @@
 <?php
 
-namespace App\Services\SmsCodeService;
+namespace App\Services\AuthCodeService;
 
+use App\Exceptions\AuthCodeErrorException;
 use App\Exceptions\AuthCodeMissingException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 
-class SmsCodeServiceWithCache implements SmsCodeServiceInterface
+class AuthCodeServiceWithCache implements AuthCodeServiceInterface
 {
     private int $phone;
+
+    public static function codeSize(): int
+    {
+       return 4;
+    }
 
     public function __construct(int $phone)
     {
@@ -17,6 +23,7 @@ class SmsCodeServiceWithCache implements SmsCodeServiceInterface
 
     /**
      * @throws AuthCodeMissingException
+     * @throws AuthCodeErrorException
      */
     public function checkCode(int $code): bool
     {
@@ -24,7 +31,11 @@ class SmsCodeServiceWithCache implements SmsCodeServiceInterface
             throw new AuthCodeMissingException;
         }
 
-        return Hash::check($code, Cache::get($this->phone));
+        $check = Hash::check($code, Cache::get($this->phone));
+        if (!$check) {
+            throw new AuthCodeErrorException;
+        }
+        return true;
     }
 
     public function getNewCode(): int
@@ -33,4 +44,5 @@ class SmsCodeServiceWithCache implements SmsCodeServiceInterface
         Cache::put($this->phone, Hash::make($code), 5 * 60);
         return $code;
     }
+
 }
