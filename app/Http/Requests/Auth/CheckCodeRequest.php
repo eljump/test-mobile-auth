@@ -27,18 +27,7 @@ class CheckCodeRequest extends FormRequest
     {
         return [
             'phone' => PhoneRule::get(),
-            'code' => ['required', 'integer', $this->getMinSize(), $this->getMaxSize()]
+            'code' => 'required|integer|min:1000|max:9999'
         ];
-    }
-
-    private function getMinSize(): string
-    {
-        $min = 10 ** (app(AuthCodeServiceInterface::class)->codeSize()-1);
-        return 'min:' . $min;
-    }
-    private function getMaxSize(): string
-    {
-        $max = (10 ** (app(AuthCodeServiceInterface::class)->codeSize()))-1;
-        return 'max:' . $max;
     }
 }

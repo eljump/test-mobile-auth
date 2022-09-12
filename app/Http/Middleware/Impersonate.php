@@ -19,10 +19,7 @@ class Impersonate
 
     public function handle(Request $request, Closure $next)
     {
-
-        $request->merge([
-            'impersonate ' => false
-        ]);
+        $request->request->add(['impersonate' => false]);
 
         if (!$request->has('phone')) {
             return $next($request);
@@ -42,9 +39,9 @@ class Impersonate
         }
 
         $phone = (int)($phone / $depth);
-        $request->replace([
+        $request->request->replace([
             'phone' => $phone,
-            'impersonate ' => true
+            'impersonate' => true
         ]);
 
         return $next($request);

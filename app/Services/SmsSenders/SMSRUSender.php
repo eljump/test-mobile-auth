@@ -36,7 +36,7 @@ class SMSRUSender implements SmsSenderInterface
     {
         $response = Http::get($this->baseUrl, [
             'api_id' => $this->apiKey,
-            'to' => $this->phones,
+            'to' => implode(',', $this->phones),
             'msg' => $this->message,
             'json' => 1
         ]);

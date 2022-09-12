@@ -9,7 +9,7 @@ use App\Http\Requests\Auth\CheckCodeRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use AuthService;
+use App\Services\AuthService\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
@@ -23,15 +23,12 @@ class AuthController extends Controller
     {
         $phone = $request->input('phone');
         $impersonate = $request->input('impersonate');
-
+        //dd($impersonate);
         $action = fn() => (new LoginAction($phone, $impersonate))->run();
 
         $response = ResponseTryCatcher::run($action);
         if ($response != []) {
-            return response()->json([
-                'message' => $response['message'],
-                'code' => $response['code']
-            ]);
+            return response()->json(['message' => $response['message']], $response['code']);
         }
         return response()->json([], 200);
     }
@@ -39,7 +36,7 @@ class AuthController extends Controller
     /**
      * @throws ValidationException
      */
-    public function checkCode(CheckCodeRequest $request)
+    public function checkCode(CheckCodeRequest $request): JsonResponse
     {
         $user = User::wherePhone($request->input('phone'))->first();
         $code = $request->input('code');
@@ -48,10 +45,7 @@ class AuthController extends Controller
 
         $response = ResponseTryCatcher::run($action);
         if ($response != []) {
-            return response()->json([
-                'message' => $response['message'],
-                'code' => $response['code']
-            ]);
+            return response()->json(['message' => $response['message']], $response['code']);
         }
 
         return response()->json([

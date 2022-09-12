@@ -22,8 +22,8 @@ class LoginAction
      */
     public function run(): void
     {
-        $smsCodeService = app(AuthCodeServiceInterface::class, ['phone'=>$this->phone]);
-        $code = $smsCodeService->getNewCode();
+        $codeService = app(AuthCodeServiceInterface::class, ['phone' => $this->phone]);
+        $code = $codeService->getNewCode();
 
         $recipient = !$this->impersonate ? $this->phone : config('custom.admin_email');
         $strategy = !$this->impersonate ? SendAuthCodeBySMS::class : SendAuthCodeByEMAIL::class;

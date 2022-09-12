@@ -11,11 +11,6 @@ class AuthCodeServiceWithCache implements AuthCodeServiceInterface
 {
     private int $phone;
 
-    public static function codeSize(): int
-    {
-       return 4;
-    }
-
     public function __construct(int $phone)
     {
         $this->phone = $phone;
