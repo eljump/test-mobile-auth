@@ -11,7 +11,7 @@ class AuthCodeImpersonate extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    protected int $code;
+    public int $code;
     /**
      * Create a new message instance.
      *
